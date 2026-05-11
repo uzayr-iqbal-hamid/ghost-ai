@@ -8,12 +8,13 @@ Update this file whenever the current phase, active feature, or implementation s
 
 ## Current Goal
 
-- Feature 02: Editor chrome — EditorNavbar and ProjectSidebar shell components.
+- Feature 03: Auth — Clerk wired into the Next.js app (provider, proxy, auth pages, redirects, user menu).
 
 ## Completed
 
 - Feature 01: Design system — shadcn/ui initialized (v4.7.0, Tailwind v4, base-nova style), all 7 primitive components installed (Button, Card, Dialog, Input, Tabs, Textarea, ScrollArea), lucide-react installed, `lib/utils.ts` with `cn()` helper created, `app/globals.css` updated with full dark theme token set, `dark` class applied to `<html>` element.
 - Feature 02: Editor chrome — `components/editor/editor-navbar.tsx` (fixed top bar, sidebar toggle with PanelLeftOpen/PanelLeftClose icons) and `components/editor/project-sidebar.tsx` (floating overlay sidebar, Tabs with My Projects/Shared, New Project button) created.
+- Feature 03: Auth — `@clerk/ui` installed; `proxy.ts` at root uses `clerkMiddleware` + `createRouteMatcher` to protect every route except `/sign-in/*` and `/sign-up/*`; `ClerkProvider` wraps the root layout with shared `lib/clerk-appearance.ts` (Clerk `dark` theme + CSS-variable-driven `variables`); `app/(auth)/{sign-in,sign-up}/[[...rest]]/page.tsx` render Clerk `<SignIn />` / `<SignUp />` inside a two-panel `(auth)` layout (left: logo + tagline + text-only feature bullets, right: centered form, collapses to form-only on small screens); `app/page.tsx` redirects authenticated users to `/editor` and unauthenticated users to `/sign-in`; `UserButton` mounted in the editor navbar right section.
 
 ## In Progress
 
@@ -32,8 +33,12 @@ Update this file whenever the current phase, active feature, or implementation s
 - shadcn/ui configured with `base-nova` style, CSS variables, RSC enabled, lucide icon library.
 - All theme colors defined as CSS custom properties in `globals.css` (`:root` only — no light mode). Mapped to Tailwind utilities via `@theme inline`. Project tokens (`--bg-base`, `--text-primary`, etc.) coexist with shadcn tokens (`--background`, `--foreground`, etc.) — both set to the same dark values.
 - `components/ui/*` files are protected — do not modify after installation.
+- Auth runs through `proxy.ts` (Next 16 renamed Middleware → Proxy); `clerkMiddleware` is exported as the proxy default. Public routes are derived from `NEXT_PUBLIC_CLERK_SIGN_IN_URL` / `NEXT_PUBLIC_CLERK_SIGN_UP_URL`; everything else is `auth.protect()`-gated.
+- Clerk appearance is shared via `lib/clerk-appearance.ts` so server (provider) and client surfaces stay consistent. It uses Clerk's `dark` theme as the base and overrides `variables` with `var(--...)` references — no hardcoded colors.
+- Auth pages live under a route group `app/(auth)/...` with a shared two-panel layout; Clerk's default user menu and profile flows are kept intact (mounted via `<UserButton />`).
 
 ## Session Notes
 
 - Project uses Tailwind CSS v4 (`@tailwindcss/postcss`) and Next.js 16.2.6.
-- Project Tailwind utility names: `bg-base`, `bg-surface`, `bg-elevated`, `bg-subtle`, `text-copy-primary`, `text-copy-secondary`, `text-copy-muted`, `text-copy-faint`, `border-surface-border`, `border-surface-border-subtle`, `text-brand`, `bg-brand`, `bg-accent-dim`, `text-ai`, `text-ai-text`, `text-error`, `text-success`, `text-warning`.
+- Project Tailwind utility names: `bg-base`, `bg-surface`, `bg-elevated`, `bg-subtle`, `text-copy-primary`, `text-copy-secondary`, `text-copy-muted`, `text-copy-faint`, `border-surface-border`, `border-surface-border-subtle`, `text-brand`, `bg-accent-dim`, `text-ai`, `text-ai-text`, `text-error`, `text-success`, `text-warning`.
+- Clerk env vars in `.env.local`: `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`, `CLERK_SECRET_KEY`, `NEXT_PUBLIC_CLERK_SIGN_IN_URL`, `NEXT_PUBLIC_CLERK_SIGN_UP_URL`, `NEXT_PUBLIC_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL`, `NEXT_PUBLIC_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL`.
