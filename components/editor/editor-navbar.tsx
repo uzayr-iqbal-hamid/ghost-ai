@@ -13,7 +13,12 @@ export function EditorNavbar({ isOpen, onToggle }: EditorNavbarProps) {
   return (
     <nav className="fixed top-0 right-0 left-0 z-40 flex h-12 items-center border-b border-surface-border bg-surface px-3">
       <div className="flex items-center">
-        <Button variant="ghost" size="icon-sm" onClick={onToggle}>
+        <Button
+          variant="ghost"
+          size="icon-sm"
+          onClick={onToggle}
+          aria-label={isOpen ? "Close sidebar" : "Open sidebar"}
+        >
           {isOpen ? (
             <PanelLeftClose className="h-5 w-5" />
           ) : (
