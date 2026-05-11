@@ -8,13 +8,14 @@ Update this file whenever the current phase, active feature, or implementation s
 
 ## Current Goal
 
-- Feature 03: Auth — Clerk wired into the Next.js app (provider, proxy, auth pages, redirects, user menu).
+- Feature 04: Project dialogs — `/editor` home screen with empty-state hero, Create/Rename/Delete project dialogs, sidebar item actions, mobile backdrop. Mock data only — no API or persistence.
 
 ## Completed
 
 - Feature 01: Design system — shadcn/ui initialized (v4.7.0, Tailwind v4, base-nova style), all 7 primitive components installed (Button, Card, Dialog, Input, Tabs, Textarea, ScrollArea), lucide-react installed, `lib/utils.ts` with `cn()` helper created, `app/globals.css` updated with full dark theme token set, `dark` class applied to `<html>` element.
 - Feature 02: Editor chrome — `components/editor/editor-navbar.tsx` (fixed top bar, sidebar toggle with PanelLeftOpen/PanelLeftClose icons) and `components/editor/project-sidebar.tsx` (floating overlay sidebar, Tabs with My Projects/Shared, New Project button) created.
 - Feature 03: Auth — `@clerk/ui` installed; `proxy.ts` at root uses `clerkMiddleware` + `createRouteMatcher` to protect every route except `/sign-in/*` and `/sign-up/*`; `ClerkProvider` wraps the root layout with shared `lib/clerk-appearance.ts` (Clerk `dark` theme + CSS-variable-driven `variables`); `app/(auth)/{sign-in,sign-up}/[[...rest]]/page.tsx` render Clerk `<SignIn />` / `<SignUp />` inside a two-panel `(auth)` layout (left: logo + tagline + text-only feature bullets, right: centered form, collapses to form-only on small screens); `app/page.tsx` redirects authenticated users to `/editor` and unauthenticated users to `/sign-in`; `UserButton` mounted in the editor navbar right section.
+- Feature 04: Project dialogs — `/editor` home shows a centered empty-state hero (heading, description, `New Project` button with `Plus` icon). `hooks/use-project-dialogs.ts` owns dialog mode, form name, active project, and loading state. `components/editor/project-dialogs-context.tsx` exposes the hook via context so `EditorShell`, `ProjectSidebar`, and the editor home share state. Create/Rename/Delete dialogs (`components/editor/{create,rename,delete}-project-dialog.tsx`) are mounted once in `EditorShell`. Create dialog has a live slug preview (via `lib/slugify.ts`); Rename dialog prefills the input, auto-focuses, shows current name in description, and submits on Enter; Delete dialog is destructive-only confirmation with no input. Sidebar lists projects from `lib/mock-projects.ts`, with hover-reveal rename/delete actions on owned items only; shared tab has no actions. Mobile gets a backdrop scrim (`md:hidden`) that closes the sidebar on tap.
 
 ## In Progress
 
@@ -36,6 +37,7 @@ Update this file whenever the current phase, active feature, or implementation s
 - Auth runs through `proxy.ts` (Next 16 renamed Middleware → Proxy); `clerkMiddleware` is exported as the proxy default. Public routes are derived from `NEXT_PUBLIC_CLERK_SIGN_IN_URL` / `NEXT_PUBLIC_CLERK_SIGN_UP_URL`; everything else is `auth.protect()`-gated.
 - Clerk appearance is shared via `lib/clerk-appearance.ts` so server (provider) and client surfaces stay consistent. It uses Clerk's `dark` theme as the base and overrides `variables` with `var(--...)` references — no hardcoded colors.
 - Auth pages live under a route group `app/(auth)/...` with a shared two-panel layout; Clerk's default user menu and profile flows are kept intact (mounted via `<UserButton />`).
+- Project dialog state is owned by a single hook (`useProjectDialogs`) and shared via `ProjectDialogsProvider`. Dialogs are mounted once in `EditorShell`; consumers only call `openCreate` / `openRename` / `openDelete`. No persistence yet — `submit()` is a no-op placeholder that resolves and closes the dialog.
 
 ## Session Notes
 
