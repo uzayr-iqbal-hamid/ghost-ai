@@ -13,8 +13,16 @@ import { Input } from "@/components/ui/input"
 import { useProjectDialogsContext } from "./project-dialogs-context"
 
 export function RenameProjectDialog() {
-  const { mode, activeProject, name, isLoading, setName, close, submit } =
-    useProjectDialogsContext()
+  const {
+    mode,
+    activeProject,
+    name,
+    isLoading,
+    error,
+    setName,
+    close,
+    submit,
+  } = useProjectDialogsContext()
 
   const open = mode === "rename" && activeProject !== null
   const trimmed = name.trim()
@@ -59,12 +67,14 @@ export function RenameProjectDialog() {
             />
           </div>
 
+          {error && <p className="text-xs text-error">{error}</p>}
+
           <DialogFooter>
             <Button type="button" variant="ghost" onClick={close}>
               Cancel
             </Button>
             <Button type="submit" disabled={!canSubmit}>
-              Rename
+              {isLoading ? "Renaming..." : "Rename"}
             </Button>
           </DialogFooter>
         </form>
