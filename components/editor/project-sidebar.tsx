@@ -1,22 +1,27 @@
 "use client"
 
 import { Pencil, Plus, Trash2, X } from "lucide-react"
+
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { cn } from "@/lib/utils"
-import { MOCK_PROJECTS, type MockProject } from "@/lib/mock-projects"
+import type { ProjectSummary } from "@/lib/projects"
 import { useProjectDialogsContext } from "./project-dialogs-context"
 
 interface ProjectSidebarProps {
   isOpen: boolean
   onClose: () => void
+  owned: ProjectSummary[]
+  shared: ProjectSummary[]
 }
 
-export function ProjectSidebar({ isOpen, onClose }: ProjectSidebarProps) {
+export function ProjectSidebar({
+  isOpen,
+  onClose,
+  owned,
+  shared,
+}: ProjectSidebarProps) {
   const { openCreate, openRename, openDelete } = useProjectDialogsContext()
-
-  const owned = MOCK_PROJECTS.filter((p) => p.ownership === "owned")
-  const shared = MOCK_PROJECTS.filter((p) => p.ownership === "shared")
 
   return (
     <>
@@ -27,13 +32,13 @@ export function ProjectSidebar({ isOpen, onClose }: ProjectSidebarProps) {
           "fixed inset-0 z-40 bg-black/50 backdrop-blur-sm transition-opacity duration-200 md:hidden",
           isOpen
             ? "pointer-events-auto opacity-100"
-            : "pointer-events-none opacity-0"
+            : "pointer-events-none opacity-0",
         )}
       />
       <div
         className={cn(
           "fixed top-0 left-0 z-50 flex h-full w-72 flex-col border-r border-surface-border bg-surface transition-transform duration-200 ease-in-out",
-          isOpen ? "translate-x-0" : "-translate-x-full"
+          isOpen ? "translate-x-0" : "-translate-x-full",
         )}
       >
         <div className="flex items-center justify-between border-b border-surface-border px-4 py-3">
@@ -54,7 +59,10 @@ export function ProjectSidebar({ isOpen, onClose }: ProjectSidebarProps) {
             <TabsTrigger value="shared">Shared</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="my-projects" className="flex-1 overflow-y-auto p-2">
+          <TabsContent
+            value="my-projects"
+            className="flex-1 overflow-y-auto p-2"
+          >
             {owned.length === 0 ? (
               <div className="flex h-full items-center justify-center">
                 <span className="text-sm text-copy-muted">No projects yet</span>
@@ -102,7 +110,7 @@ export function ProjectSidebar({ isOpen, onClose }: ProjectSidebarProps) {
 }
 
 interface ProjectItemProps {
-  project: MockProject
+  project: ProjectSummary
   onRename?: () => void
   onDelete?: () => void
 }
@@ -112,9 +120,12 @@ function ProjectItem({ project, onRename, onDelete }: ProjectItemProps) {
 
   return (
     <li className="group flex items-center gap-1 rounded-lg px-2 py-1.5 hover:bg-elevated">
-      <span className="flex-1 truncate text-sm text-copy-secondary">
+      <a
+        href={`/editor/${project.id}`}
+        className="flex-1 truncate text-sm text-copy-secondary hover:text-copy-primary"
+      >
         {project.name}
-      </span>
+      </a>
       {hasActions && (
         <div className="flex items-center gap-0.5 opacity-0 transition-opacity group-hover:opacity-100 focus-within:opacity-100">
           {onRename && (

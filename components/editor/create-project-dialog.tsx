@@ -1,6 +1,5 @@
 "use client"
 
-import { useMemo } from "react"
 import {
   Dialog,
   DialogContent,
@@ -11,15 +10,13 @@ import {
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { slugify } from "@/lib/slugify"
 import { useProjectDialogsContext } from "./project-dialogs-context"
 
 export function CreateProjectDialog() {
-  const { mode, name, isLoading, setName, close, submit } =
+  const { mode, name, isLoading, error, roomIdPreview, setName, close, submit } =
     useProjectDialogsContext()
 
   const open = mode === "create"
-  const slug = useMemo(() => slugify(name), [name])
   const canSubmit = name.trim().length > 0 && !isLoading
 
   return (
@@ -62,19 +59,23 @@ export function CreateProjectDialog() {
 
           <div className="flex flex-col gap-1">
             <span className="text-xs font-medium text-copy-secondary">
-              Slug preview
+              Room ID
             </span>
             <code className="rounded-lg border border-surface-border bg-elevated px-2.5 py-1.5 font-mono text-xs text-copy-muted">
-              {slug || "your-project-slug"}
+              {roomIdPreview || "your-room-id"}
             </code>
           </div>
+
+          {error && (
+            <p className="text-xs text-error">{error}</p>
+          )}
 
           <DialogFooter>
             <Button type="button" variant="ghost" onClick={close}>
               Cancel
             </Button>
             <Button type="submit" disabled={!canSubmit}>
-              Create project
+              {isLoading ? "Creating..." : "Create project"}
             </Button>
           </DialogFooter>
         </form>
