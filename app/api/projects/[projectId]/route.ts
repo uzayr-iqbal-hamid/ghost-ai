@@ -1,36 +1,14 @@
-import { auth } from "@clerk/nextjs/server";
 import type { NextRequest } from "next/server";
 
 import { prisma } from "@/lib/prisma";
+import { authorizeProjectOwner } from "@/lib/project-authorization";
 
 type Context = { params: Promise<{ projectId: string }> };
-
-async function authorizeOwner(projectId: string) {
-  const { userId } = await auth();
-  if (!userId) {
-    return { error: Response.json({ error: "Unauthorized" }, { status: 401 }) };
-  }
-
-  const project = await prisma.project.findUnique({
-    where: { id: projectId },
-    select: { id: true, ownerId: true },
-  });
-
-  if (!project) {
-    return { error: Response.json({ error: "Not found" }, { status: 404 }) };
-  }
-
-  if (project.ownerId !== userId) {
-    return { error: Response.json({ error: "Forbidden" }, { status: 403 }) };
-  }
-
-  return { userId, project };
-}
 
 export async function PATCH(request: NextRequest, ctx: Context) {
   const { projectId } = await ctx.params;
 
-  const authResult = await authorizeOwner(projectId);
+  const authResult = await authorizeProjectOwner(projectId);
   if ("error" in authResult) return authResult.error;
 
   let body: unknown;
@@ -68,7 +46,7 @@ export async function PATCH(request: NextRequest, ctx: Context) {
 export async function DELETE(_request: NextRequest, ctx: Context) {
   const { projectId } = await ctx.params;
 
-  const authResult = await authorizeOwner(projectId);
+  const authResult = await authorizeProjectOwner(projectId);
   if ("error" in authResult) return authResult.error;
 
   await prisma.project.delete({ where: { id: projectId } });
