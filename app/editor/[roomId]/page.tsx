@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 
+import { CanvasRoom } from "@/components/canvas/canvas-room";
 import { AccessDenied } from "@/components/editor/access-denied";
 import { getCurrentIdentity, getProjectAccess } from "@/lib/project-access";
 
@@ -20,11 +21,5 @@ export default async function EditorRoomPage({ params }: EditorRoomPageProps) {
     return <AccessDenied />;
   }
 
-  return (
-    <div className="flex h-full items-center justify-center bg-base px-6">
-      <p className="text-sm text-copy-muted">
-        Canvas for {access.project.name} will render here.
-      </p>
-    </div>
-  );
+  return <CanvasRoom roomId={roomId} />;
 }
