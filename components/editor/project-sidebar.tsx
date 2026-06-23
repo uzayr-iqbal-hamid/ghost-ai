@@ -13,6 +13,7 @@ interface ProjectSidebarProps {
   onClose: () => void
   owned: ProjectSummary[]
   shared: ProjectSummary[]
+  activeProjectId?: string | null
 }
 
 export function ProjectSidebar({
@@ -20,6 +21,7 @@ export function ProjectSidebar({
   onClose,
   owned,
   shared,
+  activeProjectId,
 }: ProjectSidebarProps) {
   const { openCreate, openRename, openDelete } = useProjectDialogsContext()
 
@@ -73,6 +75,7 @@ export function ProjectSidebar({
                   <ProjectItem
                     key={project.id}
                     project={project}
+                    isActive={project.id === activeProjectId}
                     onRename={() => openRename(project)}
                     onDelete={() => openDelete(project)}
                   />
@@ -91,7 +94,11 @@ export function ProjectSidebar({
             ) : (
               <ul className="flex flex-col gap-0.5">
                 {shared.map((project) => (
-                  <ProjectItem key={project.id} project={project} />
+                  <ProjectItem
+                    key={project.id}
+                    project={project}
+                    isActive={project.id === activeProjectId}
+                  />
                 ))}
               </ul>
             )}
@@ -111,18 +118,33 @@ export function ProjectSidebar({
 
 interface ProjectItemProps {
   project: ProjectSummary
+  isActive?: boolean
   onRename?: () => void
   onDelete?: () => void
 }
 
-function ProjectItem({ project, onRename, onDelete }: ProjectItemProps) {
+function ProjectItem({
+  project,
+  isActive,
+  onRename,
+  onDelete,
+}: ProjectItemProps) {
   const hasActions = Boolean(onRename || onDelete)
 
   return (
-    <li className="group flex items-center gap-1 rounded-lg px-2 py-1.5 hover:bg-elevated">
+    <li
+      className={cn(
+        "group flex items-center gap-1 rounded-lg px-2 py-1.5 hover:bg-elevated",
+        isActive && "bg-elevated",
+      )}
+    >
       <a
         href={`/editor/${project.id}`}
-        className="flex-1 truncate text-sm text-copy-secondary hover:text-copy-primary"
+        aria-current={isActive ? "page" : undefined}
+        className={cn(
+          "flex-1 truncate text-sm hover:text-copy-primary",
+          isActive ? "text-copy-primary" : "text-copy-secondary",
+        )}
       >
         {project.name}
       </a>
